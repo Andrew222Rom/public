@@ -1,86 +1,64 @@
-CREATE DATABASE IF NOT EXISTS flower_shop;
-USE flower_shop;
+CREATE DATABASE IF NOT EXISTS krra9226;
+USE krra9226;
 
--- Создание таблицы РАСТЕНИЕ
-CREATE TABLE IF NOT EXISTS plant (
-    plant_code INT PRIMARY KEY AUTO_INCREMENT,
-    plant_name VARCHAR(100) NOT NULL,
-    country VARCHAR(50) NOT NULL,
-    price DECIMAL(10,2) NOT NULL
+-- таблицы сотрудники
+CREATE TABLE Employees(
+    id_emloyees INT PRIMARY KEY,
+    emloyees_surname VARCHAR(50),
+    emloyees_name VARCHAR(50),
+    emloyees_patronymic VARCHAR(50),
+    gender VARCHAR(1), -- СДЕЛАТЬ ВЫБОР МЕЖДУ ПОЛОВ
+	date_birth_emloyees DATE,
+    home_adress VARCHAR(50),
+    post VARCHAR(50),
+    subunit VARCHAR(50)
 );
 
--- Создание таблицы ПОКУПАТЕЛЬ
-CREATE TABLE IF NOT EXISTS buyer (
-    org_code INT PRIMARY KEY AUTO_INCREMENT,
-    organization VARCHAR(100) NOT NULL,
-    bank_details VARCHAR(200),
-    payment_type ENUM('наличный', 'безналичный') NOT NULL
+-- таблица подразделения
+CREATE TABLE Subunit(
+    id_subunit INT PRIMARY KEY,
+    title VARCHAR(50),
+    type_of_unit VARCHAR(50)
 );
 
--- Создание таблицы ПРОДАЖА
-CREATE TABLE IF NOT EXISTS sale (
-    sale_date DATE NOT NULL,
-    plant_code INT NOT NULL,
-    quantity INT NOT NULL,
-    org_code INT NOT NULL,
-    payment_status ENUM('да', 'нет') NOT NULL,
-    FOREIGN KEY (plant_code) REFERENCES plant(plant_code),
-    FOREIGN KEY (org_code) REFERENCES buyer(org_code)
+CREATE TABLE Info_emloyees(
+     id_emloyees INT,
+     are_working_at_the_moment VARCHAR(2), -- СДЕЛАТЬ ВЫБОР
+     dismissed_at_their_own_request VARCHAR(1), -- СДЕЛАТЬ ВЫБОР
+     year_of_dismissal DATE,
+     date_of_hiring DATE,
+     date_of_dismissal DATE,
+     city​_of_residence VARCHAR(50)
 );
 
--- Внесение записей в таблицу РАСТЕНИЕ
-INSERT INTO plant (plant_name, country, price) VALUES
-('Роза', 'Голландия', 150.00),
-('Тюльпан', 'Голландия', 80.00),
-('Хризантема', 'Голландия', 120.00),
-('Ромашка', 'Россия', 50.00),
-('Сирень', 'Россия', 200.00),
-('Пион', 'Россия', 180.00);
+-- внесение сотрудники
+INSERT INTO Employees VALUES(1,"Пушкин","Александр","Сергеевич","М",'1799-06-06',"улица Иванова 14","Начальник отдела","Продажи");
+INSERT INTO Employees VALUES(2,"Лермонтов","Михаил","Юрьвич","М",'1814-10-15',"улица Иванова 12","Консультант","Продажи");
+INSERT INTO Employees VALUES(3,"Пушкин","Александр","Сергеевич","М",'1799-06-06',"улица Колотушкина 38","Менеджер","Охрана");
+-- внесение подразделения 
+INSERT INTO Subunit VALUES(1,"","","","");
+INSERT INTO Subunit VALUES(2,"","","","");
 
--- Внесение записей в таблицу ПОКУПАТЕЛЬ
-INSERT INTO buyer (organization, bank_details, payment_type) VALUES
-('ООО "Весна"', '40702810500000012345', 'безналичный'),
-('ИП Иванов', NULL, 'наличный'),
-('ЗАО "Лето"', '40702810600000067890', 'безналичный'),
-('ООО "ЦветыОпт"', NULL, 'наличный'),
-('АО "Флора"', '40702810700000054321', 'безналичный');
-
--- Внесение записей в таблицу ПРОДАЖА
-INSERT INTO sale (sale_date, plant_code, quantity, org_code, payment_status) VALUES
-('2025-03-15', 1, 10, 1, 'да'),   -- Роза для ООО "Весна"
-('2025-03-16', 5, 5, 1, 'да'),    -- Сирень для ООО "Весна"
-('2025-04-20', 1, 8, 2, 'нет'),   -- Роза для ИП Иванов
-('2025-05-10', 5, 3, 3, 'да'),    -- Сирень для ЗАО "Лето"
-('2025-06-05', 2, 15, 4, 'нет'),  -- Тюльпан для ООО "ЦветыОпт"
-('2025-07-12', 1, 12, 5, 'да'),   -- Роза для АО "Флора"
-('2025-08-18', 5, 7, 5, 'нет');   -- Сирень для АО "Флора"
-
--- 1. Вывести растения из Голландии
-SELECT plant_name, country, price 
-FROM plant 
+-- №1 
+SELECT id_doctor FROM Doctor
 WHERE country = 'Голландия';
 
--- 2. Вывести растения из России и их цену
-SELECT plant_name, price 
-FROM plant 
+-- №2
+SELECT flower_name, price FROM Flowers
 WHERE country = 'Россия';
 
--- 3. Вывести список организаций, которые не указали банковские реквизиты
-SELECT organization, bank_details 
-FROM buyer 
+-- №3 
+SELECT org_name FROM Buyer -- ошибка
 WHERE bank_details IS NULL;
 
--- 4. Получить список организаций, которые произвели покупки роз и сирени в 2025 году
-SELECT DISTINCT b.organization
-FROM buyer b
-JOIN sale s ON b.org_code = s.org_code
-JOIN plant p ON s.plant_code = p.plant_code
-WHERE p.plant_name IN ('Роза', 'Сирень')
-AND YEAR(s.sale_date) = 2025;
+-- №4
+SELECT Buyer.org_name FROM Buyer, Sales, Flowers 
+WHERE Buyer.id_org = Sales.id_org 
+AND Flowers.id_flower = Sales.id_flower 
+AND Flowers.flower_name IN ('Роза', 'Сирень') 
+AND YEAR(Sales.sale_date) = 2025;
 
--- 5. Определить организации и их банковские реквизиты, которые не произвели оплату
-SELECT DISTINCT b.organization, b.bank_details
-FROM buyer b
-JOIN sale s ON b.org_code = s.org_code
-WHERE s.payment_status = 'нет';
-
+-- №5
+SELECT Buyer.org_name, Buyer.bank_details FROM Buyer, Sales 
+WHERE Buyer.id_org = Sales.id_org 
+AND Sales.payment_status = 'нет';
