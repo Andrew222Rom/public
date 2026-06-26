@@ -1,1 +1,11 @@
 
+private void Update()
+{
+    float h = Input.GetAxisRaw("Horizontal");
+    float v = Input.GetAxisRaw("Vertical");
+
+    Vector3 move = transform.right * h;
+    move += transform.forward * v;
+
+    transform.position += move.normalized * speed * Time.deltaTime;
+}
